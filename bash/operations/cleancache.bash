@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-clean_cache() {
+function clean_cache() {
     cachedir=($(grep '^CacheDir' '/etc/pacman.conf' | cut -d '=' -f2 | cut -d '#' -f1))
     [[ $cachedir ]] && cachedir=${cachedir[@]%/} && PKGDEST=${PKGDEST%/}
 

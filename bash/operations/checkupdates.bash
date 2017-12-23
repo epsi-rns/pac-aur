@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
-check_updates() {
+function check_updates() {
     local foreignpkgs foreignpkgsbase repopkgsQood repopkgsQver repopkgsSver repopkgsSrepo repopkgsQgrp repopkgsQignore
     local aurpkgsQood aurpkgsAname aurpkgsAver aurpkgsQver aurpkgsQignore i json
     local aurdevelpkgsAver aurdevelpkgsQver aurpkgsQoodAver lname lQver lSver lrepo lgrp lAname lAQver lASver lArepo

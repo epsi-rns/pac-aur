@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
-get_ignored_pkgs() {
+function get_ignored_pkgs() {
     # global ignoredpkgs
     ignoredpkgs+=($(grep '^IgnorePkg' '/etc/pacman.conf' | awk -F '=' '{print $NF}' | tr -d "'\""))
     [[ -e "$HOME/.config/cower/config" ]] && ignoredpkgs+=($(grep '^IgnorePkg' "$HOME/.config/cower/config" | awk -F '=' '{print $NF}' | tr -d "'\""))
     ignoredpkgs=(${ignoredpkgs[@]//,/ })
 }
 
-get_ignored_grps() {
+function get_ignored_grps() {
     # global ignoredgrps
     ignoredgrps+=($(grep '^IgnoreGroup' '/etc/pacman.conf' | awk -F '=' '{print $NF}' | tr -d "'\""))
     ignoredgrps=(${ignoredgrps[@]//,/ })
 }
 
-get_install_scripts() {
+function get_install_scripts() {
     local installscriptspath
     # global installscripts
     [[ ! -d "$clonedir/$1" ]] && return
@@ -23,7 +23,7 @@ get_install_scripts() {
     [[ -n "${installscriptspath[@]}" ]] && installscripts=($(basename -a ${installscriptspath[@]}))
 }
 
-get_built_pkg() {
+function get_built_pkg() {
     local pkgext
     # global builtpkg
     # check PKGEXT suffixe first, then default .xz suffixe for repository packages in pacman cache
@@ -36,7 +36,7 @@ get_built_pkg() {
     [[ ! -f "$builtpkg" ]] && unset builtpkg
 }
 
-get_pkgbase() {
+function get_pkgbase() {
     local i
     # global json pkgsbase basepkgs
     set_json "$@"

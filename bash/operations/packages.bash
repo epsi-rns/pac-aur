@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
-sudo_v() {
+function sudo_v() {
     touch "$tmpdir/pacaur.sudov.lck"
     while [[ -e "$tmpdir/pacaur.sudov.lck" ]]; do
         sudo $pacmanbin -V > /dev/null
@@ -9,7 +9,7 @@ sudo_v() {
     done
 }
 
-download_pkgs() {
+function download_pkgs() {
     local i errgit
     # global basepkgs
     show_note "i" $"${colorW}Retrieving package(s)...${reset}"
@@ -41,7 +41,7 @@ download_pkgs() {
     [[ -z "${basepkgs[@]}" ]] && show_note "e" $"no results found"
 }
 
-edit_pkgs() {
+function edit_pkgs() {
     local viewed timestamp i j erreditpkg
     # global cachedpkgs installscripts editor
     [[ $noedit ]] && return
@@ -127,7 +127,7 @@ edit_pkgs() {
     fi
 }
 
-make_pkgs() {
+function make_pkgs() {
     local oldorphanpkgs neworphanpkgs orphanpkgs oldoptionalpkgs newoptionalpkgs optionalpkgs errinstall
     local pkgsdepslist vcsclients vcschecked aurdevelpkgsAver aurdevelpkgsQver basepkgsupdate checkpkgsdepslist isaurdeps builtpkgs builtdepspkgs i j
     # global deps basepkgs sudoloop pkgsbase pkgsdeps aurpkgs aurdepspkgs depsAver builtpkg errmakepkg repoprovidersconflictingpkgs aurprovidersconflictingpkgs json

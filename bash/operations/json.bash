@@ -4,7 +4,7 @@
 # This lib used a lot in dependecncies
 
 declare -A jsoncache
-set_json() {
+function set_json() {
     if [[ $# -eq 0 ]]; then
         json="{}"
     else
@@ -16,7 +16,7 @@ set_json() {
     fi
 }
 
-download_json() {
+function download_json() {
     local urlencodedpkgs urlargs urlcurl urlarg urlmax j
     urlencodedpkgs=($(sed 's/+/%2b/g;s/@/%40/g' <<< $@)) # pkgname consists of alphanum@._+-
     urlarg='&arg[]='
@@ -39,7 +39,7 @@ download_json() {
     fi
 }
 
-get_json() {
+function get_json() {
     if json_verify -q <<< "$2"; then
         case "$1" in
             var)

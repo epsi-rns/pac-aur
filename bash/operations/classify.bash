@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
-classify_pkgs() {
+function classify_pkgs() {
     local noaurpkgs norepopkgs
     # global aurpkgs repopkgs
     if [[ $fallback = true ]]; then

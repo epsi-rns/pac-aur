@@ -2,7 +2,7 @@
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
 # used intensively (eight times) in this mpdule
-check_requires() {
+function check_requires() {
     local Qrequires
     Qrequires=($(expac -Q '%n %D' | grep -E " $@[\+]*[^a-zA-Z0-9_@\.\+-]+" | awk '{print $1}' | tr '\n' ' '))
     if [[ -n "${Qrequires[@]}" ]]; then
@@ -11,7 +11,7 @@ check_requires() {
     fi
 }
 
-ignore_deps_checks() {
+function ignore_deps_checks() {
     local i
     # global ignoredpkgs aurpkgs aurdepspkgs aurdepspkgsAgrp aurdepspkgsQgrp repodepspkgsSgrp repodepspkgsQgrp rmaurpkgs deps repodepspkgs
     [[ -z "${ignoredpkgs[@]}" && -z "${ignoredgrps[@]}" ]] && return
@@ -84,7 +84,7 @@ ignore_deps_checks() {
     done
 }
 
-provider_checks() {
+function provider_checks() {
     local allproviders providersdeps providers repodepspkgsprovided providerspkgs provided nb providersnb
     # global repodepspkgs repoprovidersconflictingpkgs repodepsSver repodepsSrepo repodepsQver
     [[ -z "${repodepspkgs[@]}" ]] && return
@@ -156,7 +156,7 @@ provider_checks() {
     # store for installation
     repoprovidersconflictingpkgs+=(${providerspkgs[@]})
 
-    FindDepsRepoProvider ${providerspkgs[@]}
+    find_deps_repo_provider ${providerspkgs[@]}
 
     # get binary packages info
     if [[ -n "${repodepspkgs[@]}" ]]; then
@@ -167,7 +167,7 @@ provider_checks() {
     fi
 }
 
-conflict_checks() {
+function conflict_checks() {
     local allQprovides allQconflicts Aprovides Aconflicts aurconflicts aurAconflicts Qrequires i j k
     local repodepsprovides repodepsconflicts checkedrepodepsconflicts repodepsconflictsname repodepsconflictsver localver repoconflictingpkgs
     # global deps depsAname json aurdepspkgs aurconflictingpkgs aurconflictingpkgsrm depsQver repodepspkgs repoconflictingpkgsrm repoprovidersconflictingpkgs
@@ -305,7 +305,7 @@ conflict_checks() {
     done
 }
 
-reinstall_checks() {
+function reinstall_checks() {
     local i depsAtmp
     # global aurpkgs aurdepspkgs deps aurconflictingpkgs depsAname depsQver depsAver depsAood depsAmain
     depsAtmp=(${depsAname[@]})
@@ -330,7 +330,7 @@ reinstall_checks() {
     nothing_to_do ${deps[@]}
 }
 
-outofdate_checks() {
+function outofdate_checks() {
     local i
     # global depsAname depsAver depsAood
     for i in "${!depsAname[@]}"; do
@@ -338,7 +338,7 @@ outofdate_checks() {
     done
 }
 
-orphan_checks() {
+function orphan_checks() {
     local i
     # global depsAname depsAver depsAmain
     for i in "${!depsAname[@]}"; do

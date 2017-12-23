@@ -2,7 +2,7 @@
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
 # used extensively in several functions
-do_proceed() {
+function do_proceed() {
     local Y y N n answer readline ret
     Y="$(gettext pacman Y)"; y="${Y,,}";
     N="$(gettext pacman N)"; n="${N,,}"

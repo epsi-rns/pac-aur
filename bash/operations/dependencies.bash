@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
-deps_solver() {
+function deps_solver() {
     local i aurpkgsname aurpkgsver aurpkgsaurver aurpkgsconflicts
     # global aurpkgs aurpkgsnover aurpkgsproviders aurdeps deps json errdeps errdepsnover foreignpkgs repodeps depsAname depsAver depsAood depsQver
     show_note "i" $"resolving dependencies..."
@@ -99,7 +99,7 @@ deps_solver() {
     repodepspkgs=($(tr ' ' '\n' <<< ${repodepspkgs[@]} | sort -u))
 }
 
-find_deps_aur() {
+function find_deps_aur() {
     local depspkgs depspkgstmp depspkgsaurtmp repodepstmp builtpkg vcsdepspkgs assumedepspkgs
     local aurversionpkgs aurversionpkgsname aurversionpkgsver aurversionpkgsaurver i j json
     # global aurpkgsnover depspkgsaur errdeps depsAname depsAver repodeps aurdepspkgs prevdepspkgsaur foreignpkgs
@@ -260,11 +260,11 @@ find_deps_aur() {
 
     if [[ -n "${depspkgsaur[@]}" ]]; then
         aurdepspkgs+=(${depspkgsaur[@]})
-        FindDepsAur ${depspkgsaur[@]}
+        find_deps_aur ${depspkgsaur[@]}
     fi
 }
 
-sort_deps_aur() {
+function sort_deps_aur() {
     local i j sortaurpkgs sortdepspkgs sortdepspkgsaur
     # global checkedsortdepspkgsaur allcheckedsortdepspkgsaur json errdepsnover
     [[ -z "${checkedsortdepspkgsaur[@]}" ]] && sortaurpkgs=(${aurpkgs[@]}) || sortaurpkgs=(${checkedsortdepspkgsaur[@]})
@@ -309,11 +309,11 @@ sort_deps_aur() {
     done
     if [[ -n "${checkedsortdepspkgsaur[@]}" ]]; then
         checkedsortdepspkgsaur=($(tr ' ' '\n' <<< ${checkedsortdepspkgsaur[@]} | sort -u))
-        SortDepsAur ${checkedsortdepspkgsaur[@]}
+        sort_deps_aur ${checkedsortdepspkgsaur[@]}
     fi
 }
 
-find_deps_aur_error() {
+function find_deps_aur_error() {
     local i nexterrdep nextallerrdeps
     # global errdepsnover errdepslist tsorterrdeps currenterrdep
 
@@ -357,7 +357,7 @@ find_deps_aur_error() {
     fi
 }
 
-find_deps_repo() {
+function find_deps_repo() {
     local allrepodepspkgs repodepspkgstmp
     # global repodeps repodepspkgs
     [[ -z "${repodeps[@]}" ]] && return
@@ -380,7 +380,7 @@ find_deps_repo() {
     fi
 }
 
-find_deps_repo_provider() {
+function find_deps_repo_provider() {
     local allrepodepspkgs providerrepodepspkgstmp
     # global repodeps repodepspkgs
     [[ -z "${providerspkgs[@]}" ]] && return
@@ -399,7 +399,7 @@ find_deps_repo_provider() {
         repodepspkgs+=(${providerrepodepspkgstmp[@]})
 
         providerspkgs=(${providerrepodepspkgstmp[@]})
-        FindDepsRepoProvider ${providerspkgs[@]}
+        find_deps_repo_provider ${providerspkgs[@]}
     fi
 }
 

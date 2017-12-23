@@ -149,8 +149,11 @@ function _operation_else() {
     fi
 }
 
+# ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----
+# the whole operations
+
 function execute_operation() {
-    local $operation=$1
+    local operation=$1
 
     # operations
     case $operation in

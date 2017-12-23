@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
-show_note() {
+function show_note() {
     case "$1" in
         i) echo -e "${colorB}::${reset} $2";;       # info
         s) echo -e "${colorG}::${reset} $2";;       # success
@@ -12,7 +12,7 @@ show_note() {
     esac
 }
 
-helper_get_length() {
+function helper_get_length() {
     local length=0 i
     for i in "$@"; do
         x=${#i}
@@ -21,7 +21,7 @@ helper_get_length() {
     echo $length
 }
 
-nothing_to_do() {
+function nothing_to_do() {
     [[ -z "$@" ]] && printf "%s\n" $" there is nothing to do" && exit || return 0
 }
 

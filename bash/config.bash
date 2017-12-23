@@ -15,6 +15,7 @@ unset operation pac pacQ pacS quiet rebuild refresh repo search selective upgrad
 #TEXTDOMAINDIR='/usr/share/locale'
 
 # determine config location
+# -n : string is not null.
 if [[ -n "${XDG_CONFIG_DIRS}" ]]; then
     for i in ${XDG_CONFIG_DIRS//:/ }; do
         [[ -d "$i/pacaur" ]] && export XDG_CONFIG_DIRS="$i" && break

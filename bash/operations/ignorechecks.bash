@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
-ignore_checks() {
+function ignore_checks() {
     local checkaurpkgs checkaurpkgsAver checkaurpkgsAgrp checkaurpkgsQver checkaurpkgsQgrp i json
     # global aurpkgs rmaurpkgs
     [[ -z "${ignoredpkgs[@]}" && -z "${ignoredgrps[@]}" ]] && return
