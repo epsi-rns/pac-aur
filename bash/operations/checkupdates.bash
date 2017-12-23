@@ -2,6 +2,8 @@
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
 function check_updates() {
+    # check: option handling
+
     local foreignpkgs foreignpkgsbase repopkgsQood repopkgsQver repopkgsSver repopkgsSrepo repopkgsQgrp repopkgsQignore
     local aurpkgsQood aurpkgsAname aurpkgsAver aurpkgsQver aurpkgsQignore i json
     local aurdevelpkgsAver aurdevelpkgsQver aurpkgsQoodAver lname lQver lSver lrepo lgrp lAname lAQver lASver lArepo
@@ -31,7 +33,7 @@ function check_updates() {
                 foreignpkgsnobase=($(expac -Q '%n' ${foreignpkgs[@]}))
                 for i in "${!foreignpkgsbase[@]}"; do
                     if [[ -n "$(grep -E "\-(cvs|svn|git|hg|bzr|darcs|daily.*|nightly.*)$" <<< ${foreignpkgsbase[$i]})" ]]; then
-                        [[ ! -d "$clonedir/${foreignpkgsbase[$i]}" ]] && DownloadPkgs "${foreignpkgsbase[$i]}" &>/dev/null
+                        [[ ! -d "$clonedir/${foreignpkgsbase[$i]}" ]] && download_pkgs "${foreignpkgsbase[$i]}" &>/dev/null
                         cd "$clonedir/${foreignpkgsbase[$i]}"
                         # silent extraction and pkgver update only
                         makepkg -od --noprepare --skipinteg &>/dev/null

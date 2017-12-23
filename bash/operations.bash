@@ -10,7 +10,7 @@ do_cancel() {
 }
 
 function _operation_download() {
-    # download (-d) handling (deprecated)
+    # download (-d): option handling (deprecated)
 
     classify_pkgs ${pkgs[@]}
     if [[ $count -gt 1 ]]; then
@@ -27,14 +27,14 @@ function _operation_download() {
 }
 
 function _operation_editpkg() {
-    # edit (-e) handling
+    # edit (-e): option handling
 
     GetPkgbase ${pkgs[@]}
     EditPkgs ${pkgsbase[@]}
 }
 
 function _operation_sync_search() {
-    # search (-Ss, -s) handling
+    # search (-Ss, -s): option handling
 
     if [[ ! $aur ]]; then
         if [[ $refresh ]]; then
@@ -61,7 +61,7 @@ function _operation_sync_search() {
 }
 
 function _operation_sync_info() {
-    # info (-Si, -i) handling
+    # info (-Si, -i): option handling
 
     if [[ -z "${pkgs[@]}" ]]; then
         $pacmanbin ${pacmanarg[@]} ${pacopts[@]} ${ignoreopts[@]}
@@ -87,7 +87,7 @@ function _operation_sync_info() {
 }
 
 function _operation_sync_cleancache() {
-    # clean (-Sc) handling
+    # clean (-Sc): option handling
 
     [[ ! $aur ]] && sudo $pacmanbin ${pacmanarg[@]} ${pacopts[@]} ${ignoreopts[@]} ${repopkgs[@]}
     [[ ! $repo ]] && [[ $fallback = true || $aur ]] && clean_cache ${pkgs[@]}
@@ -95,7 +95,7 @@ function _operation_sync_cleancache() {
 
 # Using do_core function
 function _operation_sync_upgrade() {
-    # sysupgrade (-Su, -u) handling
+    # sysupgrade (-Su, -u): option handling
 
     [[ -n "${pkgs[@]}" ]] && classify_pkgs ${pkgs[@]}
     if [[ ! $aur ]]; then
@@ -116,7 +116,7 @@ function _operation_sync_upgrade() {
 
 # Using do_core function
 function _operation_sync_else() {
-    # sync (-S, -y), downloadonly (-Sw, -m), refresh (-Sy)
+    # sync (-S, -y), downloadonly (-Sw, -m), refresh (-Sy):: option handling
 
     if [[ -z "${pkgs[@]}" ]]; then
         sudo $pacmanbin ${pacmanarg[@]} ${pacopts[@]} ${ignoreopts[@]}
@@ -138,7 +138,7 @@ function _operation_sync_else() {
 }
 
 function _operation_else() {
-    # others operations handling
+    # others options handling
 
     if [[ -n "$(grep -e "-[F]" <<< ${pacmanarg[@]})" && -n "$(grep -e "-[y]" <<< ${pacmanarg[@]})" ]]; then
         sudo $pacmanbin ${pacmanarg[@]} ${pacopts[@]} "${pkgs[@]}"
@@ -158,24 +158,24 @@ function execute_operation() {
     # operations
     case $operation in
         download)
-            # download (-d) handling (deprecated)
+            # download (-d): option handling (deprecated)
             _operation_download
             exit;;
         editpkg)
-            # edit (-e) handling
+            # edit (-e): option handling
             _operation_editpkg
             exit;;
         sync)
-            # search (-Ss, -s) handling
+            # search (-Ss, -s): option handling
             if [[ $search ]]; then
                 _operation_sync_search
-            # info (-Si, -i) handling
+            # info (-Si, -i): option handling
             elif [[ $info ]]; then
                 _operation_sync_info
-            # clean (-Sc) handling
+            # clean (-Sc): option handling
             elif [[ $cleancache ]]; then
                 _operation_sync_cleancache
-            # sysupgrade (-Su, -u) handling
+            # sysupgrade (-Su, -u): option handling
             elif [[ $upgrade ]]; then
                 _operation_sync_upgrade
             # sync (-S, -y), downloadonly (-Sw, -m), refresh (-Sy)
@@ -184,10 +184,10 @@ function execute_operation() {
             fi
             exit;;
         upgrades)
-            # upgrades (-Qu, -k) handling
+            # upgrades (-Qu, -k): option handling
             check_updates ${pkgs[@]}
             exit;;
-        *)  # others operations handling
+        *)  # others operations: option handling
             _operation_else
             exit;;
     esac

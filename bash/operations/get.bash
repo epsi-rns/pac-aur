@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
+# used in: do_core, check_updates
 function get_ignored_pkgs() {
     # global ignoredpkgs
     ignoredpkgs+=($(grep '^IgnorePkg' '/etc/pacman.conf' | awk -F '=' '{print $NF}' | tr -d "'\""))

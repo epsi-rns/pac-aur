@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
-# This lib used a lot in dependecncies
+# This lib used a lot in dependencies
 
 declare -A jsoncache
 function set_json() {
@@ -40,6 +40,7 @@ function download_json() {
 }
 
 function get_json() {
+    # Here Strings <<<
     if json_verify -q <<< "$2"; then
         case "$1" in
             var)

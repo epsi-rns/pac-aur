@@ -49,7 +49,6 @@ deprecation_warning
 . ${DIR}/operations/get.bash
 . ${DIR}/operations/json.bash
 . ${DIR}/operations/dependencies.bash
-. ${DIR}/operations/ignorechecks.bash
 . ${DIR}/operations/packages.bash
 . ${DIR}/operations/interactive.bash
 . ${DIR}/operations/cleancache.bash
