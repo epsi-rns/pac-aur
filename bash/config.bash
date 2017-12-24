@@ -18,7 +18,7 @@ unset operation pac pacQ pacS quiet rebuild refresh repo search selective upgrad
 # -n : string is not null.
 if [[ -n "${XDG_CONFIG_DIRS}" ]]; then
     for i in ${XDG_CONFIG_DIRS//:/ }; do
-        [[ -d "$i/pacaur" ]] && export XDG_CONFIG_DIRS="$i" && break
+      [[ -d "$i/pacaur" ]] && export XDG_CONFIG_DIRS="$i" && break
     done
 fi
 configdir="${XDG_CONFIG_DIRS:-/etc/xdg}/pacaur"

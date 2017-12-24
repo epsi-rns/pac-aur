@@ -41,74 +41,106 @@ function download_pkgs() {
     [[ -z "${basepkgs[@]}" ]] && show_note "e" $"no results found"
 }
 
+function _edit_pkgs_show_pkgbuild() {
+    local i
+
+    # show pkgbuild
+    if do_proceed "y" $"View $i PKGBUILD?"; then
+        if [[ -e "PKGBUILD" ]]; then
+            $editor "PKGBUILD" && show_note "s" $"${colorW}$i${reset} PKGBUILD viewed"
+            (($? > 0)) && erreditpkg+=($i)
+        else
+            show_note "e" $"Could not open ${colorW}$i${reset} PKGBUILD"
+        fi
+    fi
+}
+
+function _edit_pkgs_show_install_script() {
+    local j
+    
+    # show install script
+    if [[ -n "${installscripts[@]}" ]]; then
+        for j in "${installscripts[@]}"; do
+            if do_proceed "y" $"View $j script?"; then
+                if [[ -e "$j" ]]; then
+                    $editor "$j" && show_note "s" $"${colorW}$j${reset} script viewed"
+                    (($? > 0)) && erreditpkg+=($i)
+                else
+                    show_note "e" $"Could not open ${colorW}$j${reset} script"
+                fi
+            fi
+        done
+    fi
+}
+
+function _edit_pkgs_show_diff() {
+    local i
+
+    # show diff
+    diffcmd="git diff --no-ext-diff $(cut -f1 .git/HEAD.prev) -- . ':!\.SRCINFO'"
+    if [[ -n "$(eval "$diffcmd")" ]]; then
+        if do_proceed "y" $"View $i build files diff?"; then
+            eval "$diffcmd"
+            show_note "s" $"${colorW}$i${reset} build files diff viewed"
+            viewed='true'
+            (($? > 0)) && erreditpkg+=($i)
+        fi
+    else
+        show_note "w" $"${colorW}$i${reset} build files are up-to-date -- skipping"
+    fi
+}
+
+function _edit_pkgs_show_pkgbuild_and_install_script() {
+    local i
+
+    # show pkgbuild and install script
+    if [[ -e "PKGBUILD" ]]; then
+        $editor "PKGBUILD" && show_note "s" $"${colorW}$i${reset} PKGBUILD viewed"
+        (($? > 0)) && erreditpkg+=($i)
+    else
+        show_note "e" $"Could not open ${colorW}$i${reset} PKGBUILD"
+    fi
+    if [[ -n "${installscripts[@]}" ]]; then
+        for j in "${installscripts[@]}"; do
+            if [[ -e "$j" ]]; then
+                $editor "$j" && show_note "s" $"${colorW}$j${reset} script viewed"
+                (($? > 0)) && erreditpkg+=($i)
+            else
+                show_note "e" $"Could not open ${colorW}$j${reset} script"
+            fi
+        done
+    fi
+}
+
 function edit_pkgs() {
     local viewed timestamp i j erreditpkg
     # global cachedpkgs installscripts editor
+
     [[ $noedit ]] && return
     unset viewed
+
     for i in "$@"; do
         [[ " ${cachedpkgs[@]} " =~ " $i " ]] && continue
         cd "$clonedir/$i" || exit 1
         unset timestamp
         get_install_scripts $i
+
         if [[ ! $edit ]]; then
             if [[ ! $displaybuildfiles = none ]]; then
                 if [[ $displaybuildfiles = diff && -e ".git/HEAD.prev" ]]; then
                     # show diff
-                    diffcmd="git diff --no-ext-diff $(cut -f1 .git/HEAD.prev) -- . ':!\.SRCINFO'"
-                    if [[ -n "$(eval "$diffcmd")" ]]; then
-                        if do_proceed "y" $"View $i build files diff?"; then
-                            eval "$diffcmd"
-                            show_note "s" $"${colorW}$i${reset} build files diff viewed"
-                            viewed='true'
-                            (($? > 0)) && erreditpkg+=($i)
-                        fi
-                    else
-                        show_note "w" $"${colorW}$i${reset} build files are up-to-date -- skipping"
-                    fi
+                    _edit_pkgs_show_diff $i
                 else
                     # show pkgbuild
-                    if do_proceed "y" $"View $i PKGBUILD?"; then
-                        if [[ -e "PKGBUILD" ]]; then
-                            $editor "PKGBUILD" && show_note "s" $"${colorW}$i${reset} PKGBUILD viewed"
-                            (($? > 0)) && erreditpkg+=($i)
-                        else
-                            show_note "e" $"Could not open ${colorW}$i${reset} PKGBUILD"
-                        fi
-                    fi
+                    _edit_pkgs_show_pkgbuild $i
+
                     # show install script
-                    if [[ -n "${installscripts[@]}" ]]; then
-                        for j in "${installscripts[@]}"; do
-                            if do_proceed "y" $"View $j script?"; then
-                                if [[ -e "$j" ]]; then
-                                    $editor "$j" && show_note "s" $"${colorW}$j${reset} script viewed"
-                                    (($? > 0)) && erreditpkg+=($i)
-                                else
-                                    show_note "e" $"Could not open ${colorW}$j${reset} script"
-                                fi
-                            fi
-                        done
-                    fi
+                    _edit_pkgs_show_install_script
                 fi
             fi
         else
             # show pkgbuild and install script
-            if [[ -e "PKGBUILD" ]]; then
-                $editor "PKGBUILD" && show_note "s" $"${colorW}$i${reset} PKGBUILD viewed"
-                (($? > 0)) && erreditpkg+=($i)
-            else
-                show_note "e" $"Could not open ${colorW}$i${reset} PKGBUILD"
-            fi
-            if [[ -n "${installscripts[@]}" ]]; then
-                for j in "${installscripts[@]}"; do
-                    if [[ -e "$j" ]]; then
-                        $editor "$j" && show_note "s" $"${colorW}$j${reset} script viewed"
-                        (($? > 0)) && erreditpkg+=($i)
-                    else
-                        show_note "e" $"Could not open ${colorW}$j${reset} script"
-                    fi
-                done
-            fi
+            _edit_pkgs_show_pkgbuild_and_install_script $i
         fi
     done
 
@@ -202,6 +234,7 @@ function make_pkgs() {
             (($? > 0)) && errmakepkg+=(${pkgsdeps[$i]})
         fi
     done
+
     if [[ -n "${errmakepkg[@]}" ]]; then
         for i in "${errmakepkg[@]}"; do
             show_note "f" $"failed to verify integrity or prepare ${colorW}$i${reset} package"

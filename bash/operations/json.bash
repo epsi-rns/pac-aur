@@ -22,6 +22,10 @@ function download_json() {
     urlarg='&arg[]='
     urlargs="$(printf "$urlarg%s" "${urlencodedpkgs[@]}")"
     urlmax=4400
+    
+    # example of https://$aururl$aurrpc$urlargs"
+    # https://aur.archlinux.org/rpc/?type=info&v=5&arg[]=xmonad-git
+    
     # ensure the URI length is shorter than 4444 bytes (44 for AUR path)
     if [[ "${#urlargs}" -lt $urlmax ]]; then
         curl -sfg --compressed -C 0 -w "" "https://$aururl$aurrpc$urlargs"

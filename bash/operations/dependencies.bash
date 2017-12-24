@@ -1,15 +1,30 @@
 #!/usr/bin/env bash
 # based on pacaur, original code at https://github.com/rmarquis/pacaur
 
+# known issue
+# buildonly xmonad-git termite: takes forever
+
+declare -A _pkgsnover
+function _set_array_pkgs_nover() {
+    local i
+    local pkgsver=$@
+    _pkgsnover=()    # empty this array
+    
+    # remove AUR pkgs versioning
+    for i in "${!pkgsver[@]}"; do
+        _pkgsnover[$i]=$(awk -F ">|<|=" '{print $1}' <<< ${pkgsver[$i]})
+    done
+}
+
+# used in do_core, _operation_download
 function deps_solver() {
     local i aurpkgsname aurpkgsver aurpkgsaurver aurpkgsconflicts
     # global aurpkgs aurpkgsnover aurpkgsproviders aurdeps deps json errdeps errdepsnover foreignpkgs repodeps depsAname depsAver depsAood depsQver
     show_note "i" $"resolving dependencies..."
 
     # remove AUR pkgs versioning
-    for i in "${!aurpkgs[@]}"; do
-        aurpkgsnover[$i]=$(awk -F ">|<|=" '{print $1}' <<< ${aurpkgs[$i]})
-    done
+    _set_array_pkgs_nover "${aurpkgs[@]}"
+    aurpkgsnover=${_pkgsnover[@]}
 
     # set unversionned json
     set_json ${aurpkgsnover[@]}
@@ -17,16 +32,17 @@ function deps_solver() {
     # set targets providers
     aurpkgsproviders=(${aurpkgsnover[@]})
     aurpkgsproviders+=($(get_json "array" "$json" "Provides"))
-    for i in "${!aurpkgsproviders[@]}"; do
-        aurpkgsproviders[$i]=$(awk -F ">|<|=" '{print $1}' <<< ${aurpkgsproviders[$i]})
-    done
-
+    
+    _set_array_pkgs_nover "${aurpkgsproviders[@]}"
+    aurpkgsproviders=()  # empty to avoid index issue in reassignment
+    aurpkgsproviders=${_pkgsnover[@]}
+    
     # check targets conflicts
     aurpkgsconflicts=($(get_json "array" "$json" "Conflicts"))
     if [[ -n "${aurpkgsconflicts[@]}" ]]; then
-        for i in "${!aurpkgsconflicts[@]}"; do
-            aurpkgsconflicts[$i]=$(awk -F ">|<|=" '{print $1}' <<< ${aurpkgsconflicts[$i]})
-        done
+        _set_array_pkgs_nover "${aurpkgsconflicts[@]}"
+        aurpkgsconflicts=()  # empty to avoid index issue in reassignment
+        aurpkgsconflicts=${_pkgsnover[@]}    
 
         aurpkgsconflicts=($(grep -xf <(printf '%s\n' "${aurpkgsproviders[@]}") <(printf '%s\n' "${aurpkgsconflicts[@]}")))
         aurpkgsconflicts=($(tr ' ' '\n' <<< ${aurpkgsconflicts[@]} | LC_COLLATE=C sort -u))
@@ -84,7 +100,7 @@ function deps_solver() {
                 # reverse deps order
                 tsorterrdeps=($(awk '{for (i=NF;i>=1;i--) print $i}' <<< ${tsorterrdeps[@]} | awk -F "\n" '{print}'))
                 errdepslist+=(${tsorterrdeps[0]})
-                FindDepsAurError ${tsorterrdeps[@]}
+                find_deps_aur_error ${tsorterrdeps[@]}
                 errdepslist=($(awk '{for (i=NF;i>=1;i--) print $i}' <<< ${errdepslist[@]} | awk -F "\n" '{print}'))
                 show_note "f" $"no results found for ${errdeps[$i]} (dependency tree: ${errdepslist[*]})"
             fi
@@ -99,6 +115,8 @@ function deps_solver() {
     repodepspkgs=($(tr ' ' '\n' <<< ${repodepspkgs[@]} | sort -u))
 }
 
+# recursive
+# used in deps_solver
 function find_deps_aur() {
     local depspkgs depspkgstmp depspkgsaurtmp repodepstmp builtpkg vcsdepspkgs assumedepspkgs
     local aurversionpkgs aurversionpkgsname aurversionpkgsver aurversionpkgsaurver i j json
@@ -264,6 +282,8 @@ function find_deps_aur() {
     fi
 }
 
+# recursive
+# used in deps_solver
 function sort_deps_aur() {
     local i j sortaurpkgs sortdepspkgs sortdepspkgsaur
     # global checkedsortdepspkgsaur allcheckedsortdepspkgsaur json errdepsnover
@@ -338,7 +358,7 @@ function find_deps_aur_error() {
             currenterrdep=${tsorterrdeps[0]}
         fi
         tsorterrdeps=(${tsorterrdeps[@]:1})
-        FindDepsAurError ${tsorterrdeps[@]}
+        find_deps_aur_error ${tsorterrdeps[@]}
     else
         for i in "${!aurpkgs[@]}"; do
             nextallerrdeps=($(get_json "arrayvar" "$json" "Depends" "${aurpkgs[$i]}"))

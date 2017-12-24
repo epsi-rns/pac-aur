@@ -45,7 +45,7 @@ function message_version() {
 }
 
 function message_deprecated() {
-    show_note "w" "${colorW}show_note:${reset} The ${colorW}AUR specific commands${reset} short options ${colorW}-y, -s, -i, -d, -m, -u, k${reset} and their"
+    show_note "w" "${colorW}Note:${reset} The ${colorW}AUR specific commands${reset} short options ${colorW}-y, -s, -i, -d, -m, -u, k${reset} and their"
     show_note "w" "respective long options are now ${colorY}deprecated${reset} and ${colorY}will be removed${reset} in a future release."
     show_note "w" "Please use the new explicit ${colorW}sync, search, info, buildonly, update, check, clean, cleanall${reset} commands."
 }

@@ -14,23 +14,23 @@ function _operation_download() {
 
     classify_pkgs ${pkgs[@]}
     if [[ $count -gt 1 ]]; then
-        DepsSolver
-        DownloadPkgs ${deps[@]}
+        deps_solver
+        download_pkgs ${deps[@]}
     else
         if [[ -n "${aurpkgs[@]}" ]]; then
-            DownloadPkgs ${aurpkgs[@]}
+            download_pkgs ${aurpkgs[@]}
         else
             exit 1
         fi
     fi
-    EditPkgs ${pkgsbase[@]}
+    edit_pkgs ${pkgsbase[@]}
 }
 
 function _operation_editpkg() {
     # edit (-e): option handling
 
-    GetPkgbase ${pkgs[@]}
-    EditPkgs ${pkgsbase[@]}
+    get_pkgbase ${pkgs[@]}
+    edit_pkgs ${pkgsbase[@]}
 }
 
 function _operation_sync_search() {

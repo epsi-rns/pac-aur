@@ -11,15 +11,8 @@ function check_requires() {
     fi
 }
 
-function ignore_deps_checks() {
-    local i
-    # global ignoredpkgs aurpkgs aurdepspkgs aurdepspkgsAgrp aurdepspkgsQgrp repodepspkgsSgrp repodepspkgsQgrp rmaurpkgs deps repodepspkgs
-    [[ -z "${ignoredpkgs[@]}" && -z "${ignoredgrps[@]}" ]] && return
-
-    # add checked targets and preserve tsorted order
-    deps=(${deps[@]:0:${#aurpkgs[@]}})
-
-    # check dependencies
+function _ignore_deps_checks_repo() {
+    # check dependencies: repo
     for i in "${repodepspkgs[@]}"; do
         unset isignored
         if [[ " ${ignoredpkgs[@]} " =~ " $i " ]]; then
@@ -45,6 +38,10 @@ function ignore_deps_checks() {
             show_note "e" $"Unresolved dependency '${colorW}$i${reset}'"
         fi
     done
+}
+
+function _ignore_deps_checks_aur () {
+    # check dependencies: aur
     for i in "${aurdepspkgs[@]}"; do
         # skip already checked dependencies
         [[ " ${aurpkgs[@]} " =~ " $i " ]] && continue
@@ -82,6 +79,19 @@ function ignore_deps_checks() {
         fi
         deps+=($i)
     done
+}
+
+function ignore_deps_checks() {
+    local i
+    # global ignoredpkgs aurpkgs aurdepspkgs aurdepspkgsAgrp aurdepspkgsQgrp repodepspkgsSgrp repodepspkgsQgrp rmaurpkgs deps repodepspkgs
+    [[ -z "${ignoredpkgs[@]}" && -z "${ignoredgrps[@]}" ]] && return
+
+    # add checked targets and preserve tsorted order
+    deps=(${deps[@]:0:${#aurpkgs[@]}})
+    
+    _ignore_deps_checks_repo
+    _ignore_deps_checks_aur
+
 }
 
 function provider_checks() {
@@ -167,17 +177,10 @@ function provider_checks() {
     fi
 }
 
-function conflict_checks() {
-    local allQprovides allQconflicts Aprovides Aconflicts aurconflicts aurAconflicts Qrequires i j k
-    local repodepsprovides repodepsconflicts checkedrepodepsconflicts repodepsconflictsname repodepsconflictsver localver repoconflictingpkgs
-    # global deps depsAname json aurdepspkgs aurconflictingpkgs aurconflictingpkgsrm depsQver repodepspkgs repoconflictingpkgsrm repoprovidersconflictingpkgs
-    show_note "i" $"looking for inter-conflicts..."
+function _conflict_checks_aur() {
+    local Qrequires i j k
+    local Aprovides Aconflicts aurconflicts aurAconflicts 
 
-    allQprovides=($(expac -Q '%n'))
-    allQprovides+=($(expac -Q '%S')) # no versioning
-    allQconflicts=($(expac -Q '%C'))
-
-    # AUR conflicts
     Aprovides=(${depsAname[@]})
     Aprovides+=($(get_json "array" "$json" "Provides"))
     Aconflicts=($(get_json "array" "$json" "Conflicts"))
@@ -239,10 +242,12 @@ function conflict_checks() {
             [[ ! " ${Aprovides[@]} " =~ " $k " && ! " ${aurconflictingpkgsrm[@]} " =~ " $k " ]] && check_requires $k
         done
     done
+}
 
-    nothing_to_do ${deps[@]}
-
-    # repo conflicts
+function _conflict_checks_repo() {
+    local Qrequires i j k
+    local repodepsprovides repodepsconflicts checkedrepodepsconflicts repodepsconflictsname repodepsconflictsver localver repoconflictingpkgs
+    
     if [[ -n "${repodepspkgs[@]}" ]]; then
         repodepsprovides=(${repodepspkgs[@]})
         repodepsprovides+=($(expac -S -1 '%S' "${repodepspkgs[@]}")) # no versioning
@@ -303,6 +308,26 @@ function conflict_checks() {
             [[ ! " ${Qprovides[@]} " =~ " $k " ]] && check_requires $k
         done
     done
+}
+
+function conflict_checks() {
+    # these two cannot be local
+    # local allQprovides allQconflicts
+
+    # global deps depsAname json aurdepspkgs aurconflictingpkgs aurconflictingpkgsrm depsQver repodepspkgs repoconflictingpkgsrm repoprovidersconflictingpkgs
+    show_note "i" $"looking for inter-conflicts..."
+
+    allQprovides=($(expac -Q '%n'))
+    allQprovides+=($(expac -Q '%S')) # no versioning
+    allQconflicts=($(expac -Q '%C'))
+
+    # AUR conflicts
+    _conflict_checks_aur
+
+    nothing_to_do ${deps[@]}
+
+    # repo conflicts
+    _conflict_checks_repo
 }
 
 function reinstall_checks() {
